@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.13.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.13.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="4.13.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CQRSkiv.Core\CQRSkiv.Core.csproj" />
+    <ProjectReference Include="..\CQRSkiv.Domain\CQRSkiv.Domain.csproj" />
+    <ProjectReference Include="..\CQRSkiv.Infrastructure\CQRSkiv.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
