@@ -31,6 +31,7 @@ builder.Services.AddScoped<IRepository<AdminCommission>, AdminCommissionReposito
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<IOrganizationUnitService, OrganizationUnitService>();
 builder.Services.AddScoped<IAdminCommissionService, AdminCommissionService>();
+builder.Services.AddScoped<IEventStoreQueryService, EventStoreQueryService>();
 
 // Configure Marten for PostgreSQL (Event Store Database) and enable the async daemon
 builder.Services.AddMarten(options =>
