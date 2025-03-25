@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRSkiv.Domain", "CQRSkiv.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRSkiv.Infrastructure", "CQRSkiv.Infrastructure\CQRSkiv.Infrastructure.csproj", "{A38CE34D-1D33-420A-87C1-42FBC645D966}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{AB1AE44B-60F2-4328-BBB2-54EF19A04C03}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "service-defaults", "service-defaults\service-defaults.csproj", "{435EFEDC-7499-43AA-877E-240AB69B2DB3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRSkiv.Apphost", "CQRSkiv.Apphost\CQRSkiv.Apphost.csproj", "{606FB2C7-2DB7-40FC-B53D-8EAEB838F820}"
@@ -89,14 +87,6 @@ Global
 		{A38CE34D-1D33-420A-87C1-42FBC645D966}.Release|x64.Build.0 = Release|Any CPU
 		{A38CE34D-1D33-420A-87C1-42FBC645D966}.Release|x86.ActiveCfg = Release|Any CPU
 		{A38CE34D-1D33-420A-87C1-42FBC645D966}.Release|x86.Build.0 = Release|Any CPU
-		{AB1AE44B-60F2-4328-BBB2-54EF19A04C03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AB1AE44B-60F2-4328-BBB2-54EF19A04C03}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AB1AE44B-60F2-4328-BBB2-54EF19A04C03}.Debug|x64.ActiveCfg = Debug|x64
-		{AB1AE44B-60F2-4328-BBB2-54EF19A04C03}.Debug|x86.ActiveCfg = Debug|x86
-		{AB1AE44B-60F2-4328-BBB2-54EF19A04C03}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AB1AE44B-60F2-4328-BBB2-54EF19A04C03}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AB1AE44B-60F2-4328-BBB2-54EF19A04C03}.Release|x64.ActiveCfg = Release|x64
-		{AB1AE44B-60F2-4328-BBB2-54EF19A04C03}.Release|x86.ActiveCfg = Release|x86
 		{435EFEDC-7499-43AA-877E-240AB69B2DB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{435EFEDC-7499-43AA-877E-240AB69B2DB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{435EFEDC-7499-43AA-877E-240AB69B2DB3}.Debug|x64.ActiveCfg = Debug|Any CPU

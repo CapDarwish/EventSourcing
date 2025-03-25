@@ -20,6 +20,7 @@ var api = builder
 
 var frontend = builder
     .AddNpmApp("frontend", "../frontend", scriptName: "dev")
+    .WithReference(api)
     .WaitFor(api)
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints();
