@@ -13,4 +13,9 @@
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="CQRSkiv.Apphost\CQRSkiv.Apphost.csproj" />
+    <ProjectReference Include="CQRSkiv.PublicApi\CQRSkiv.PublicApi.csproj" />
+    <ProjectReference Include="service-defaults\service-defaults.csproj" />
+  </ItemGroup>
 </Project>
