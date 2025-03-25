@@ -14,15 +14,17 @@ using Weasel.Core;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers()
+builder
+    .Services.AddControllers()
     .AddJsonOptions(options =>
     {
-      options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
 
 // Configure EF Core for PostgreSQL (Read Database)
 builder.Services.AddDbContext<ReadDbContext>(options =>
-    options.UseNpgsql("Host=postgres;Port=5432;Database=readdb;Username=postgres;Password=yourpassword"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("readdb"))
+);
 
 // Register application services and repositories
 builder.Services.AddScoped<IRepository<Person>, PersonRepository>();
@@ -34,21 +36,22 @@ builder.Services.AddScoped<IAdminCommissionService, AdminCommissionService>();
 builder.Services.AddScoped<IEventStoreQueryService, EventStoreQueryService>();
 
 // Configure Marten for PostgreSQL (Event Store Database) and enable the async daemon
-builder.Services.AddMarten(options =>
-{
-  options.Connection("Host=postgres;Port=5432;Database=eventstore;Username=postgres;Password=yourpassword");
-  options.AutoCreateSchemaObjects = AutoCreate.CreateOrUpdate;
+builder
+    .Services.AddMarten(options =>
+    {
+        options.Connection(builder.Configuration.GetConnectionString("eventstore"));
+        options.AutoCreateSchemaObjects = AutoCreate.CreateOrUpdate;
 
-  // Configure aggregates for event sourcing
-  options.Schema.For<Person>().Identity(x => x.Id).UseOptimisticConcurrency(true);
-  options.Schema.For<OrganizationUnit>().Identity(x => x.Id).UseOptimisticConcurrency(true);
-  options.Schema.For<AdminCommission>().Identity(x => x.Id).UseOptimisticConcurrency(true);
+        // Configure aggregates for event sourcing
+        options.Schema.For<Person>().Identity(x => x.Id).UseOptimisticConcurrency(true);
+        options.Schema.For<OrganizationUnit>().Identity(x => x.Id).UseOptimisticConcurrency(true);
+        options.Schema.For<AdminCommission>().Identity(x => x.Id).UseOptimisticConcurrency(true);
 
-  // Register the custom projection
-  options.Projections.Add(new ReadModelProjection(), ProjectionLifecycle.Async);
-})
-.UseLightweightSessions()
-.AddAsyncDaemon(DaemonMode.Solo);
+        // Register the custom projection
+        options.Projections.Add(new ReadModelProjection(), ProjectionLifecycle.Async);
+    })
+    .UseLightweightSessions()
+    .AddAsyncDaemon(DaemonMode.Solo);
 
 var app = builder.Build();
 
@@ -58,11 +61,12 @@ ReadModelProjection.ServiceProvider = app.Services;
 // Ensure the read database is created
 using (var scope = app.Services.CreateScope())
 {
-  var dbContext = scope.ServiceProvider.GetRequiredService<ReadDbContext>();
-  dbContext.Database.EnsureCreated();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ReadDbContext>();
+    dbContext.Database.EnsureCreated();
 }
 
 // Configure the HTTP request pipeline
 app.MapControllers();
 
 app.Run();
+
