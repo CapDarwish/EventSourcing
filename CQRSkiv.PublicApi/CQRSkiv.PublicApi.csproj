@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CQRSkiv.Application\CQRSkiv.Application.csproj" />
+    <ProjectReference Include="../service-defaults/service-defaults.csproj" />
   </ItemGroup>
 
 </Project>

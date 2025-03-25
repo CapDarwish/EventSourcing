@@ -8,10 +8,11 @@ using Marten;
 using Marten.Events.Daemon.Resiliency;
 using Marten.Events.Projections;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Weasel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
 
 // Add services to the container
 builder
@@ -69,4 +70,3 @@ using (var scope = app.Services.CreateScope())
 app.MapControllers();
 
 app.Run();
-
