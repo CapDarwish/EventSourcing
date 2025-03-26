@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import AddPersonForm from '@/components/AddPersonForm';
 import PersonList, { Person } from '@/components/PersonList'; // Import Person type
+import AddEmploymentForm from '@/components/AddEmpoymentForm';
 
 export default function AddPersonPage() {
   // State to hold the person currently being edited
@@ -17,6 +18,13 @@ export default function AddPersonPage() {
     setEditingPerson(person);
     // Optionally scroll to the form or give focus
     // document.getElementById('name')?.focus(); // Example
+  };
+
+
+  const handleAssociationComplete = () => {
+    console.log('Employment association complete!');
+    // You might want to refresh a list of employments or navigate
+    alert('Role Assigned Successfully!');
   };
 
   // Handler for when Add or Update is successfully completed in the form
@@ -43,6 +51,9 @@ export default function AddPersonPage() {
         />
         {/* Pass edit handler and refresh key to the list */}
         <PersonList onEdit={handleEdit} refreshKey={listKey} />
+
+        <AddEmploymentForm onAssociationComplete={handleAssociationComplete} />
+
       </div>
     </main>
   );
