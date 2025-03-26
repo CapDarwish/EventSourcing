@@ -8,11 +8,14 @@ using Marten;
 using Marten.Events.Daemon.Resiliency;
 using Marten.Events.Projections;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 using Weasel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+
+builder.Services.AddOpenApi();
 
 // Add services to the container
 builder
@@ -55,6 +58,12 @@ builder
     .AddAsyncDaemon(DaemonMode.Solo);
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
 
 // Set the static service provider for ReadModelProjection
 ReadModelProjection.ServiceProvider = app.Services;
