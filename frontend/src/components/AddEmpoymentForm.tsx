@@ -5,20 +5,20 @@ import React, { useState, useEffect, FormEvent } from 'react';
 
 // Interfaces for data fetching
 interface Person {
-  Id: string;
-  Name: string;
+  id: string;
+  name: string;
 }
 
 interface OrganizationUnit {
-  Id: string;
-  Name: string;
+  id: string;
+  name: string;
 }
 
 // Interface for the command payload
 interface AddEmploymentCommand {
-  PersonId: string; // Guid
-  OrganizationUnitId: string; // Guid
-  Role: string;
+  personId: string; // Guid
+  organizationUnitId: string; // Guid
+  role: string;
 }
 
 interface AddEmploymentFormProps {
@@ -49,6 +49,7 @@ const AddEmploymentForm: React.FC<AddEmploymentFormProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  const apiUrl = process.env.API_BASE_URL;
   // Fetch Persons
   useEffect(() => {
     const fetchPersons = async () => {
@@ -56,22 +57,11 @@ const AddEmploymentForm: React.FC<AddEmploymentFormProps> = ({
       setPersonsFetchError(null);
       try {
         // --- !!! Replace with your actual API call to get persons !!! ---
-        /*
-        const response = await fetch('/api/persons');
+        const response = await fetch(apiUrl + "/api/persons");
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data: Person[] = await response.json();
         setPersons(data);
-        */
-        // --- Mock API Call ---
-        await new Promise((resolve) => setTimeout(resolve, 700));
-        const mockPersons: Person[] = [
-          { Id: 'a1', Name: 'Alice Smith' },
-          { Id: 'b2', Name: 'Bob Johnson' },
-          { Id: 'c3', Name: 'Charlie Brown' },
-        ];
-        setPersons(mockPersons);
-        console.log('Mock fetch persons successful:', mockPersons);
-        // --- End Mock API Call ---
+
       } catch (err) {
         console.error('Failed to fetch persons:', err);
         setPersonsFetchError(
@@ -92,21 +82,10 @@ const AddEmploymentForm: React.FC<AddEmploymentFormProps> = ({
       setOrgsFetchError(null);
       try {
         // --- !!! Replace with your actual API call to get organizations !!! ---
-        /*
-        const response = await fetch('/api/organizations');
+        const response = await fetch(apiUrl + '/api/organizationunits');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data: OrganizationUnit[] = await response.json();
         setOrganizations(data);
-        */
-        // --- Mock API Call ---
-        await new Promise((resolve) => setTimeout(resolve, 900));
-        const mockOrgs: OrganizationUnit[] = [
-          { Id: 'org-guid-1', Name: 'Headquarters' },
-          { Id: 'org-guid-2', Name: 'Regional Office Alpha' },
-          { Id: 'org-guid-3', Name: 'Department Beta' },
-        ];
-        setOrganizations(mockOrgs);
-        console.log('Mock fetch organizations successful:', mockOrgs);
         // --- End Mock API Call ---
       } catch (err) {
         console.error('Failed to fetch organizations:', err);
@@ -145,17 +124,16 @@ const AddEmploymentForm: React.FC<AddEmploymentFormProps> = ({
     setIsLoading(true);
 
     const employmentData: AddEmploymentCommand = {
-      PersonId: selectedPersonId,
-      OrganizationUnitId: selectedOrgId,
-      Role: role.trim(),
+      personId: selectedPersonId,
+      organizationUnitId: selectedOrgId,
+      role: role.trim(),
     };
 
     console.log('Submitting Employment data:', employmentData);
 
     try {
       // --- !!! Replace with your actual POST API call for employment !!! ---
-      /*
-      const response = await fetch('/api/employments', { // Your POST endpoint
+      const response = await fetch(apiUrl + '/api/persons/' + selectedPersonId +'/employment', { // Your POST endpoint
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(employmentData),
@@ -170,14 +148,8 @@ const AddEmploymentForm: React.FC<AddEmploymentFormProps> = ({
         throw new Error(errorMessage);
       }
       console.log('API Add Employment Success');
-      */
-      // --- Mock API Call ---
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log('Mock API Add Employment successful!');
-      // --- End Mock API Call ---
-
       setSuccessMessage(
-        `Successfully associated person with organization in role "${employmentData.Role}".`,
+        `Successfully associated person with organization in role "${employmentData.role}".`,
       );
       // Clear form on success
       setSelectedPersonId('');
@@ -228,8 +200,8 @@ const AddEmploymentForm: React.FC<AddEmploymentFormProps> = ({
             </option>
             {!isFetchingPersons &&
               persons.map((person) => (
-                <option key={person.Id} value={person.Id}>
-                  {person.Name}
+                <option key={person.id} value={person.id}>
+                  {person.name}
                 </option>
               ))}
           </select>
@@ -265,8 +237,8 @@ const AddEmploymentForm: React.FC<AddEmploymentFormProps> = ({
             </option>
             {!isFetchingOrgs &&
               organizations.map((org) => (
-                <option key={org.Id} value={org.Id}>
-                  {org.Name}
+                <option key={org.id} value={org.id}>
+                  {org.name}
                 </option>
               ))}
           </select>

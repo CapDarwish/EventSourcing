@@ -5,15 +5,15 @@ import React, { useState, useEffect, FormEvent } from 'react';
 
 // Interface for the data needed to create an org unit
 interface CreateOrganizationUnitCommand {
-  Id: string; // Guid
-  Name: string;
-  ParentId: string | null; // Guid? (nullable Guid)
+  id: string; // Guid
+  name: string;
+  parentId: string | null; // Guid? (nullable Guid)
 }
 
 // Interface for existing org units (for the parent dropdown)
 interface OrganizationUnit {
-  Id: string; // Guid
-  Name: string;
+  id: string; // Guid
+  name: string;
 }
 
 interface CreateOrganizationFormProps {
@@ -50,16 +50,6 @@ const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = ({
         const data: OrganizationUnit[] = await response.json();
         setPotentialParents(data);
 
-        // --- Mock API Call ---
-        // await new Promise((resolve) => setTimeout(resolve, 900)); // Simulate delay
-        // const mockParents: OrganizationUnit[] = [
-        //   { Id: 'org-guid-1', Name: 'Headquarters' },
-        //   { Id: 'org-guid-2', Name: 'Regional Office Alpha' },
-        //   { Id: 'org-guid-3', Name: 'Department Beta' },
-        // ];
-        // setPotentialParents(mockParents);
-        // console.log('Mock fetch parents successful:', mockParents);
-        // --- End Mock API Call ---
 
       } catch (err) {
         console.error('Failed to fetch potential parents:', err);
@@ -90,9 +80,9 @@ const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = ({
     const newId = crypto.randomUUID(); // Generate Guid client-side
 
     const orgData: CreateOrganizationUnitCommand = {
-      Id: newId,
-      Name: name.trim(),
-      ParentId: parentId, // Use the state value (string or null)
+      id: newId,
+      name: name.trim(),
+      parentId: parentId, // Use the state value (string or null)
     };
 
     console.log('Submitting Organization Unit data:', orgData);
@@ -114,13 +104,8 @@ const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = ({
         throw new Error(errorMessage);
       }
       console.log('API Create Organization Success');
-      // --- Mock API Call ---
-      // await new Promise((resolve) => setTimeout(resolve, 1000));
-      // console.log('Mock API Create Organization successful!');
-      // // --- End Mock API Call ---
-      //
       setSuccessMessage(
-        `Organization Unit "${orgData.Name}" created successfully!`,
+        `Organization Unit "${orgData.name}" created successfully!`,
       );
       setName(''); // Clear form
       setParentId(null); // Reset parent selection
@@ -188,8 +173,8 @@ const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = ({
             {isFetchingParents && <option disabled>Loading parents...</option>}
             {!isFetchingParents &&
               potentialParents.map((org) => (
-                <option key={org.Id} value={org.Id}>
-                  {org.Name}
+                <option key={org.id} value={org.id}>
+                  {org.name}
                 </option>
               ))}
           </select>

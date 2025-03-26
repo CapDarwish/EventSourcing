@@ -6,15 +6,15 @@ import type { Person } from './PersonList'; // Import the Person type
 
 // Update command might only need Name if Id is in the URL, adjust as needed
 interface UpdatePersonCommand {
-  Id: string;
-  Name: string;
+  id: string;
+  name: string;
 
 }
 
 // Create command remains the same
 interface CreatePersonCommand {
-  Id: string;
-  Name: string;
+  id: string;
+  name: string;
 }
 
 interface AddPersonFormProps {
@@ -32,13 +32,13 @@ const AddPersonForm: React.FC<AddPersonFormProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
+  const apiUrl = process.env.API_BASE_URL;
   const isEditing = personToEdit !== null;
 
   // Effect to populate form when personToEdit changes
   useEffect(() => {
     if (isEditing) {
-      setName(personToEdit.Name);
+      setName(personToEdit.name);
       setError(null); // Clear errors when starting edit
       setSuccessMessage(null); // Clear success messages
     } else {
@@ -63,13 +63,13 @@ const AddPersonForm: React.FC<AddPersonFormProps> = ({
       if (isEditing) {
         // --- UPDATE Logic ---
         const updateData: UpdatePersonCommand = {
-          Id: personToEdit.Id,
-          Name: name.trim(),
+          id: personToEdit.id,
+          name: name.trim(),
         };
-        console.log(`Updating person ${personToEdit.Id}:`, updateData);
+        console.log(`Updating person ${personToEdit.id}:`, updateData);
 
         // --- !!! Replace with your actual UPDATE API call (e.g., PUT/PATCH) !!! ---
-        const response = await fetch(`/api/persons/${personToEdit.Id}`, { // Example URL
+        const response = await fetch(`${apiUrl}/api/persons/${personToEdit.id}`, { // Example URL
           method: 'PUT', // or 'PATCH'
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updateData),
@@ -79,26 +79,21 @@ const AddPersonForm: React.FC<AddPersonFormProps> = ({
            try { const errorBody = await response.json(); errorMessage = errorBody.message || errorBody.title || errorMessage; } catch (e) {}
            throw new Error(errorMessage);
         }
-        console.log('API Update Success');
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Mock delay
-        console.log('Mock API Update successful!');
-        // --- End Mock API Call ---
 
-        setSuccessMessage(`Person "${updateData.Name}" updated successfully!`);
+        setSuccessMessage(`Person "${updateData.name}" updated successfully!`);
         onUpdateComplete(); // Notify parent component
 
       } else {
         // --- CREATE Logic (Existing) ---
         const newId = crypto.randomUUID();
         const createData: CreatePersonCommand = {
-          Id: newId,
-          Name: name.trim(),
+          id: newId,
+          name: name.trim(),
         };
         console.log('Creating new person:', createData);
 
         // --- !!! Replace with your actual CREATE API call (e.g., POST) !!! ---
-        /*
-        const response = await fetch('/api/persons', {
+        const response = await fetch(apiUrl + '/api/persons', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(createData),
@@ -109,12 +104,7 @@ const AddPersonForm: React.FC<AddPersonFormProps> = ({
            throw new Error(errorMessage);
         }
         console.log('API Create Success');
-        */
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Mock delay
-        console.log('Mock API Create successful!');
-        // --- End Mock API Call ---
-
-        setSuccessMessage(`Person "${createData.Name}" added successfully!`);
+        setSuccessMessage(`Person "${createData.name}" added successfully!`);
         setName(''); // Clear form only on successful creation
         onUpdateComplete(); // Notify parent component
       }

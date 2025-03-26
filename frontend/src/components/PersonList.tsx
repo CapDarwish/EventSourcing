@@ -4,8 +4,8 @@
 import React, { useState, useEffect } from 'react';
 
 export interface Person { // Export interface for use in parent
-  Id: string;
-  Name: string;
+  id: string;
+  name: string;
 }
 
 interface PersonListProps {
@@ -20,6 +20,7 @@ const PersonList: React.FC<PersonListProps> = ({ onEdit, refreshKey }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const baseUrl = process.env.API_BASE_URL;
   useEffect(() => {
     const fetchPersons = async () => {
       setIsLoading(true);
@@ -27,26 +28,12 @@ const PersonList: React.FC<PersonListProps> = ({ onEdit, refreshKey }) => {
       console.log('Fetching persons (refreshKey:', refreshKey, ')'); // Log fetch trigger
       try {
         // --- !!! Replace with your actual API call !!! ---
-        /*
-        const response = await fetch('/api/persons');
+        const response = await fetch(baseUrl + '/api/persons');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data: Person[] = await response.json();
+
+        console.log('Received persons:', data); // Log response
         setPersons(data);
-        */
-        // --- Mock API Call ---
-        // --- Mock API Call ---
-        await new Promise((resolve) => setTimeout(resolve, 800));
-        // Simulate some data - replace with actual fetched data
-        const mockData: Person[] = [
-          { Id: 'a1', Name: 'Alice Smith' },
-          { Id: 'b2', Name: 'Bob Johnson' },
-          { Id: 'c3', Name: 'Charlie Brown' },
-        ];
-        setPersons(mockData); // Just set the base mock data
-        console.log('Mock API call successful! Fetched:', mockData);
-
-
-
         // --- End Mock API Call ---
       } catch (err) {
         console.error('Failed to fetch persons:', err);
@@ -91,17 +78,20 @@ const PersonList: React.FC<PersonListProps> = ({ onEdit, refreshKey }) => {
           No persons found.
         </p>
       );
+    }else{
+
+        console.log('persons:', persons);
     }
 
     return (
       <ul className="divide-y divide-gray-200 dark:divide-gray-700">
         {persons.map((person) => (
           <li
-            key={person.Id}
+            key={person.id}
             className="py-3 px-1 flex justify-between items-center space-x-3"
           >
             <span className="text-gray-800 dark:text-gray-200 truncate">
-              {person.Name}
+              {person.name}
             </span>
             <button
               onClick={() => onEdit(person)}
