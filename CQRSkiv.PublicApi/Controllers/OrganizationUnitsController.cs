@@ -1,8 +1,10 @@
 ﻿using CQRSkiv.Application.Commands;
 using CQRSkiv.Application.Services;
+using CQRSkiv.Core.Interfaces;
 using CQRSkiv.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Threading.Tasks;
 
 namespace CQRSkiv.PublicApi.Controllers;
@@ -20,12 +22,26 @@ public class OrganizationUnitsController : ControllerBase
     _dbContext = dbContext;
   }
 
+  [HttpGet]
+  public async Task<IActionResult> GetAll()
+  {
+    try
+    {
+      var organizationUnits = await _dbContext.OrganizationUnits.ToListAsync();
+      return Ok(organizationUnits);
+    }
+    catch (Exception ex)
+    {
+      return StatusCode(500, $"An error occurred while fetching organization units: {ex.Message}");
+    }
+  }
+
   [HttpGet("{id}")]
   public async Task<IActionResult> Get(Guid id)
   {
-    var unit = await _dbContext.OrganizationUnits.FindAsync(id);
-    if (unit == null) return NotFound($"OrganizationUnit with Id {id} not found.");
-    return Ok(unit);
+    var organizationUnit = await _dbContext.OrganizationUnits.FindAsync(id);
+    if (organizationUnit == null) return NotFound($"OrganizationUnit with Id {id} not found.");
+    return Ok(organizationUnit);
   }
 
   [HttpPost]

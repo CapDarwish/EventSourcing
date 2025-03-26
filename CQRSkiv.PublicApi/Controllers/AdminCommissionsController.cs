@@ -1,8 +1,10 @@
 ﻿using CQRSkiv.Application.Commands;
 using CQRSkiv.Application.Services;
+using CQRSkiv.Core.Interfaces;
 using CQRSkiv.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Threading.Tasks;
 
 namespace CQRSkiv.PublicApi.Controllers;
@@ -20,12 +22,26 @@ public class AdminCommissionsController : ControllerBase
     _dbContext = dbContext;
   }
 
+  [HttpGet]
+  public async Task<IActionResult> GetAll()
+  {
+    try
+    {
+      var adminCommissions = await _dbContext.AdminCommissions.ToListAsync();
+      return Ok(adminCommissions);
+    }
+    catch (Exception ex)
+    {
+      return StatusCode(500, $"An error occurred while fetching admin commissions: {ex.Message}");
+    }
+  }
+
   [HttpGet("{id}")]
   public async Task<IActionResult> Get(Guid id)
   {
-    var commission = await _dbContext.AdminCommissions.FindAsync(id);
-    if (commission == null) return NotFound($"AdminCommission with Id {id} not found.");
-    return Ok(commission);
+    var adminCommission = await _dbContext.AdminCommissions.FindAsync(id);
+    if (adminCommission == null) return NotFound($"AdminCommission with Id {id} not found.");
+    return Ok(adminCommission);
   }
 
   [HttpPost]

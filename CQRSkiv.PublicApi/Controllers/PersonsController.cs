@@ -21,6 +21,20 @@ public class PersonsController : ControllerBase
     _dbContext = dbContext;
   }
 
+  [HttpGet]
+  public async Task<IActionResult> GetAll()
+  {
+    try
+    {
+      var persons = await _dbContext.Persons.ToListAsync();
+      return Ok(persons);
+    }
+    catch (Exception ex)
+    {
+      return StatusCode(500, $"An error occurred while fetching persons: {ex.Message}");
+    }
+  }
+
   [HttpGet("{id}")]
   public async Task<IActionResult> Get(Guid id)
   {
