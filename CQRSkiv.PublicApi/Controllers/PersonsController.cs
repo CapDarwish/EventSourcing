@@ -1,10 +1,10 @@
-﻿using CQRSkiv.Application.Commands;
+﻿using System.Threading.Tasks;
+using CQRSkiv.Application.Commands;
 using CQRSkiv.Application.Services;
 using CQRSkiv.Core.Interfaces;
 using CQRSkiv.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace CQRSkiv.PublicApi.Controllers;
 
@@ -12,165 +12,192 @@ namespace CQRSkiv.PublicApi.Controllers;
 [ApiController]
 public class PersonsController : ControllerBase
 {
-  private readonly IPersonService _personService;
-  private readonly ReadDbContext _dbContext;
+    private readonly IPersonService _personService;
+    private readonly ITestRepository _testRepository;
+    private readonly ReadDbContext _dbContext;
 
-  public PersonsController(IPersonService personService, ReadDbContext dbContext)
-  {
-    _personService = personService;
-    _dbContext = dbContext;
-  }
+    public PersonsController(
+        IPersonService personService,
+        ITestRepository testRepository,
+        ReadDbContext dbContext
+    )
+    {
+        _personService = personService;
+        _testRepository = testRepository;
+        _dbContext = dbContext;
+    }
 
-  [HttpGet]
-  public async Task<IActionResult> GetAll()
-  {
-    try
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
     {
-      var persons = await _dbContext.Persons.ToListAsync();
-      return Ok(persons);
+        try
+        {
+            var persons = await _dbContext.Persons.ToListAsync();
+            return Ok(persons);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while fetching persons: {ex.Message}");
+        }
     }
-    catch (Exception ex)
-    {
-      return StatusCode(500, $"An error occurred while fetching persons: {ex.Message}");
-    }
-  }
 
-  [HttpGet("{id}")]
-  public async Task<IActionResult> Get(Guid id)
-  {
-    var person = await _dbContext.Persons.FindAsync(id);
-    if (person == null) return NotFound($"Person with Id {id} not found.");
-    return Ok(person);
-  }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(Guid id)
+    {
+        var person = await _dbContext.Persons.FindAsync(id);
+        if (person == null)
+            return NotFound($"Person with Id {id} not found.");
+        return Ok(person);
+    }
 
-  [HttpPost]
-  public async Task<IActionResult> Create([FromBody] CreatePersonCommand command)
-  {
-    if (!ModelState.IsValid)
-      return BadRequest(ModelState);
+    [HttpGet("projection/{id}/{version}")]
+    public async Task<IActionResult> GetProjection(Guid id, long version)
+    {
+        var person = await _testRepository.GetByIdAsync(id, version);
+        return Ok(person);
+    }
 
-    try
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreatePersonCommand command)
     {
-      await _personService.CreatePersonAsync(command);
-      return CreatedAtAction(nameof(Get), new { id = command.Id }, null);
-    }
-    catch (InvalidOperationException ex)
-    {
-      return BadRequest(ex.Message);
-    }
-    catch (Exception ex)
-    {
-      return StatusCode(500, $"An error occurred while creating the person: {ex.Message}");
-    }
-  }
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-  [HttpPut("{id}")]
-  public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePersonCommand command)
-  {
-    if (!ModelState.IsValid)
-      return BadRequest(ModelState);
+        try
+        {
+            await _personService.CreatePersonAsync(command);
+            return CreatedAtAction(nameof(Get), new { id = command.Id }, null);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while creating the person: {ex.Message}");
+        }
+    }
 
-    if (id != command.Id) return BadRequest("Id mismatch");
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePersonCommand command)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-    try
-    {
-      await _personService.UpdatePersonAsync(command);
-      return NoContent();
-    }
-    catch (InvalidOperationException ex)
-    {
-      if (ex.Message.Contains("not found")) return NotFound(ex.Message);
-      return BadRequest(ex.Message);
-    }
-    catch (Exception ex)
-    {
-      return StatusCode(500, $"An error occurred while updating the person: {ex.Message}");
-    }
-  }
+        if (id != command.Id)
+            return BadRequest("Id mismatch");
 
-  [HttpDelete("{id}")]
-  public async Task<IActionResult> Delete(Guid id)
-  {
-    var command = new DeletePersonCommand(id);
+        try
+        {
+            await _personService.UpdatePersonAsync(command);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message.Contains("not found"))
+                return NotFound(ex.Message);
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while updating the person: {ex.Message}");
+        }
+    }
 
-    try
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
     {
-      await _personService.DeletePersonAsync(command);
-      return NoContent();
-    }
-    catch (InvalidOperationException ex)
-    {
-      if (ex.Message.Contains("not found")) return NotFound(ex.Message);
-      return BadRequest(ex.Message);
-    }
-    catch (Exception ex)
-    {
-      return StatusCode(500, $"An error occurred while deleting the person: {ex.Message}");
-    }
-  }
+        var command = new DeletePersonCommand(id);
 
-  [HttpPost("{personId}/employment")]
-  public async Task<IActionResult> AddEmployment(Guid personId, [FromBody] AddEmploymentCommand command)
-  {
-    if (personId != command.PersonId)
-      return BadRequest("PersonId mismatch");
+        try
+        {
+            await _personService.DeletePersonAsync(command);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message.Contains("not found"))
+                return NotFound(ex.Message);
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while deleting the person: {ex.Message}");
+        }
+    }
 
-    try
+    [HttpPost("{personId}/employment")]
+    public async Task<IActionResult> AddEmployment(
+        Guid personId,
+        [FromBody] AddEmploymentCommand command
+    )
     {
-      await _personService.AddEmploymentAsync(command);
-      return Ok();
-    }
-    catch (InvalidOperationException ex)
-    {
-      if (ex.Message.Contains("not found")) return NotFound(ex.Message);
-      return BadRequest(ex.Message);
-    }
-    catch (Exception ex)
-    {
-      return StatusCode(500, $"An error occurred while adding employment: {ex.Message}");
-    }
-  }
+        if (personId != command.PersonId)
+            return BadRequest("PersonId mismatch");
 
-  [HttpPut("{personId}/employment/{organizationUnitId}")]
-  public async Task<IActionResult> UpdateEmployment(Guid personId, Guid organizationUnitId, [FromBody] UpdateEmploymentCommand command)
-  {
-    if (personId != command.PersonId || organizationUnitId != command.OrganizationUnitId)
-      return BadRequest("PersonId or OrganizationUnitId mismatch");
+        try
+        {
+            await _personService.AddEmploymentAsync(command);
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message.Contains("not found"))
+                return NotFound(ex.Message);
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while adding employment: {ex.Message}");
+        }
+    }
 
-    try
+    [HttpPut("{personId}/employment/{organizationUnitId}")]
+    public async Task<IActionResult> UpdateEmployment(
+        Guid personId,
+        Guid organizationUnitId,
+        [FromBody] UpdateEmploymentCommand command
+    )
     {
-      await _personService.UpdateEmploymentAsync(command);
-      return NoContent();
-    }
-    catch (InvalidOperationException ex)
-    {
-      if (ex.Message.Contains("not found")) return NotFound(ex.Message);
-      return BadRequest(ex.Message);
-    }
-    catch (Exception ex)
-    {
-      return StatusCode(500, $"An error occurred while updating employment: {ex.Message}");
-    }
-  }
+        if (personId != command.PersonId || organizationUnitId != command.OrganizationUnitId)
+            return BadRequest("PersonId or OrganizationUnitId mismatch");
 
-  [HttpDelete("{personId}/employment/{organizationUnitId}")]
-  public async Task<IActionResult> DeleteEmployment(Guid personId, Guid organizationUnitId)
-  {
-    var command = new DeleteEmploymentCommand(personId, organizationUnitId);
+        try
+        {
+            await _personService.UpdateEmploymentAsync(command);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message.Contains("not found"))
+                return NotFound(ex.Message);
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while updating employment: {ex.Message}");
+        }
+    }
 
-    try
+    [HttpDelete("{personId}/employment/{organizationUnitId}")]
+    public async Task<IActionResult> DeleteEmployment(Guid personId, Guid organizationUnitId)
     {
-      await _personService.DeleteEmploymentAsync(command);
-      return NoContent();
+        var command = new DeleteEmploymentCommand(personId, organizationUnitId);
+
+        try
+        {
+            await _personService.DeleteEmploymentAsync(command);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message.Contains("not found"))
+                return NotFound(ex.Message);
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while deleting employment: {ex.Message}");
+        }
     }
-    catch (InvalidOperationException ex)
-    {
-      if (ex.Message.Contains("not found")) return NotFound(ex.Message);
-      return BadRequest(ex.Message);
-    }
-    catch (Exception ex)
-    {
-      return StatusCode(500, $"An error occurred while deleting employment: {ex.Message}");
-    }
-  }
 }

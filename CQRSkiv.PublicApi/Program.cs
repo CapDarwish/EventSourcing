@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using CQRSkiv.Application.Services;
 using CQRSkiv.Core.Interfaces;
 using CQRSkiv.Domain.Aggregates;
@@ -23,6 +24,7 @@ builder
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 
 // Configure EF Core for PostgreSQL (Read Database)
@@ -39,6 +41,8 @@ builder.Services.AddScoped<IOrganizationUnitService, OrganizationUnitService>();
 builder.Services.AddScoped<IAdminCommissionService, AdminCommissionService>();
 builder.Services.AddScoped<IEventStoreQueryService, EventStoreQueryService>();
 
+builder.Services.AddScoped<ITestRepository, TestRepository>();
+
 // Configure Marten for PostgreSQL (Event Store Database) and enable the async daemon
 builder
     .Services.AddMarten(options =>
@@ -54,7 +58,7 @@ builder
         // Register the custom projection
         options.Projections.Add(new ReadModelProjection(), ProjectionLifecycle.Async);
     })
-    .UseLightweightSessions()
+    // .UseLightweightSessions()
     .AddAsyncDaemon(DaemonMode.Solo);
 
 var app = builder.Build();
